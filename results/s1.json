@@ -1,0 +1,630 @@
+{
+  "spike": "s1",
+  "title": "Do framework debug internals actually resolve?",
+  "startedAt": "2026-09-13T12:31:52.758Z",
+  "finishedAt": "2026-09-13T12:32:17.540Z",
+  "question": "For a known DOM node, does the framework expose enough to recover the correct source file and line - and does that still hold on current major versions and in production builds?",
+  "verdict": "pass",
+  "conclusion": "Dev builds: 6/6 cells attributed every node, each via whichever signal that version exposes.\n  react-17/dev     100% via _debugSource (file:line) [react 17.0.2]\n  react-18/dev     100% via _debugSource (file:line) [react 18.3.1]\n  react-19/dev     100% via _debugStack+sourcemap (file:line) [react 19.2.0]\n  vue-3/dev        100% via __vueParentComponent.type.__file (file) [vue 3.5.13]\n  svelte-4/dev     100% via __svelte_meta.loc (file:line) [svelte 4.2.19; loc.line offset -1]\n  svelte-5/dev     100% via __svelte_meta.loc (file:line) [svelte 5.19.0]\nProduction builds: 0/6 cells attributed - every debug field is stripped.\nReact 19 removes _debugSource from the fiber entirely. The field is absent, not null, so a resolver that reads it gets undefined and, without the startup self-test TDD s5.1 mentions, silently attributes nothing rather than failing loudly.\nReact 19 still carries the JSX call site in _debugStack, but as a bundle-relative Error stack. Recovering a source line means consuming the build source map, which moves React 19 from TDD s5.1 (read a field) to s5.2 (consume a map) and makes it depend on the build emitting usable maps.\nVue attributes to a FILE and carries no line at all (vue-3/dev). The design's \"file:line at 0.95\" does not hold for Vue; locating the element inside the file needs anchor search or structural verification as a second stage.\nSvelte is the cleanest signal of the three - __svelte_meta sits on the element itself, no tree walk - but Svelte 4 reports loc.line 0-based while Svelte 5 reports it 1-based. A resolver written against one and shipped against the other lands every patch exactly one line off, which is the quietest possible way to be wrong.\nNo debug signal survives a production build in any framework tested.\nNot measured: Angular 17, which the s0.5 matrix lists. Treat its row as unknown, not as working.",
+  "designImpact": "TDD s5.1 cannot be one resolver. It is per framework AND per major: read a field (React 17/18, Svelte), parse a stack through a source map (React 19), or accept file-only (Vue).\nThe startup self-test is not optional. It is the only thing between a removed private API and silent non-attribution, and it must assert line numbers, not just presence, or the Svelte indexing change passes it.\nBuild s5.2 (source-map indexing) before or alongside s5.1: React 19 already needs it, so it is not a fallback, it is a dependency.\nVue needs the s5.3/s5.4 anchor-plus-structural stage to reach line granularity, so Vue support costs more than the \"pluggable locator\" framing suggests.\nDev-server dependency is confirmed as a hard precondition for this entire signal class, which makes spike S2 (RSC) and the probing fallback in s5.5 more load-bearing, not less.",
+  "observations": [
+    {
+      "cell": "react-17/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-17/dev",
+      "probe": "_debugSource@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/dev",
+      "probe": "_debugStack+map@dev",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/dev",
+      "probe": "_debugOwner(name)@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "_debugSource:set _debugOwner:set _debugHookTypes:null"
+    },
+    {
+      "cell": "react-17/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via _debugSource",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "_debugSource@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "_debugStack+map@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "_debugOwner(name)@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "react-17/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "_debugSource@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "_debugStack+map@dev",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "_debugOwner(name)@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "_debugSource:set _debugOwner:set _debugHookTypes:null"
+    },
+    {
+      "cell": "react-18/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via _debugSource",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "_debugSource@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "_debugStack+map@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "_debugOwner(name)@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "react-18/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "_debugSource@dev",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "_debugStack+map@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "_debugOwner(name)@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "_debugOwner:set _debugInfo:null _debugTask:set _debugStack:set _debugHookTypes:null"
+    },
+    {
+      "cell": "react-19/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via _debugStack+sourcemap",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "27 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 27,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "_debugSource@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "_debugStack+map@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "_debugOwner(name)@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "react-19/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "vue-3/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "vue-3/dev",
+      "probe": "__file(component)@dev",
+      "ok": true,
+      "detail": "20/20 - correct FILE; Vue carries no line",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "vue-3/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "__file:set __name:set"
+    },
+    {
+      "cell": "vue-3/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via __vueParentComponent.type.__file",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "vue-3/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "vue-3/prod",
+      "probe": "__file(component)@prod",
+      "ok": false,
+      "detail": "0/20 - correct FILE; Vue carries no line",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "vue-3/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "vue-3/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "svelte-4/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "svelte-4/dev",
+      "probe": "__svelte_meta.loc@dev",
+      "ok": false,
+      "detail": "0/20 - systematic line offset -1",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-4/dev",
+      "probe": "__svelte_meta(file)@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-4/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "__svelte_meta"
+    },
+    {
+      "cell": "svelte-4/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via __svelte_meta.loc",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "svelte-4/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "svelte-4/prod",
+      "probe": "__svelte_meta.loc@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-4/prod",
+      "probe": "__svelte_meta(file)@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-4/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "svelte-4/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "svelte-5/dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "svelte-5/dev",
+      "probe": "__svelte_meta.loc@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-5/dev",
+      "probe": "__svelte_meta(file)@dev",
+      "ok": true,
+      "detail": "20/20",
+      "metrics": {
+        "accuracy": 1,
+        "hits": 20,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-5/dev",
+      "probe": "fields-present",
+      "ok": true,
+      "detail": "__svelte_meta"
+    },
+    {
+      "cell": "svelte-5/dev",
+      "probe": "best-signal@dev",
+      "ok": true,
+      "detail": "100% via __svelte_meta.loc",
+      "metrics": {
+        "accuracy": 1
+      }
+    },
+    {
+      "cell": "svelte-5/prod",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "24 tagged nodes for 20 ids",
+      "metrics": {
+        "rendered": 24,
+        "ids": 20
+      }
+    },
+    {
+      "cell": "svelte-5/prod",
+      "probe": "__svelte_meta.loc@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-5/prod",
+      "probe": "__svelte_meta(file)@prod",
+      "ok": false,
+      "detail": "0/20",
+      "metrics": {
+        "accuracy": 0,
+        "hits": 0,
+        "n": 20
+      }
+    },
+    {
+      "cell": "svelte-5/prod",
+      "probe": "fields-present",
+      "ok": false,
+      "detail": "no debug fields on the element"
+    },
+    {
+      "cell": "svelte-5/prod",
+      "probe": "best-signal@prod",
+      "ok": false,
+      "detail": "no signal resolves this cell",
+      "metrics": {
+        "accuracy": 0
+      }
+    },
+    {
+      "cell": "angular-17/dev",
+      "probe": "unmeasured",
+      "ok": false,
+      "detail": "not built - Angular needs its own compiler toolchain; ng.getComponent is expected to be component-level like Vue, but expected is not measured"
+    }
+  ],
+  "env": {
+    "node": "v24.20.0",
+    "platform": "win32 x64"
+  }
+}

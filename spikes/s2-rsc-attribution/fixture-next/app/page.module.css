@@ -1,0 +1,16 @@
+/* A CSS Module, so the build emits hashed class names of exactly the shape TDD s5.2
+   claims to crack via the CSS source map. */
+.serverCard {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.serverHeading {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.clientToolbar {
+  display: flex;
+  gap: 8px;
+}

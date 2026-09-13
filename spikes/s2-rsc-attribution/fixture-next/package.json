@@ -1,0 +1,8 @@
+{
+  "name": "s2-next-app-router",
+  "private": true,
+  "version": "0.0.0",
+  "description": "S2 fixture: Next.js App Router, mixing a server component and a client component so attribution can be measured separately for each.",
+  "scripts": { "dev": "next dev" },
+  "dependencies": { "next": "15.1.6", "react": "19.0.0", "react-dom": "19.0.0" }
+}

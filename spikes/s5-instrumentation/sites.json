@@ -1,0 +1,20 @@
+{
+  "comment": "Homepages only, one request each, fetched with a descriptive UA and robots.txt honoured (TDD s9.5). Chosen to span the target profile: strict-CSP SaaS, CDN-fronted marketing, docs sites, public sector, and one control with no CSP at all.",
+  "sites": [
+    { "url": "https://example.com/",                        "profile": "control-no-csp" },
+    { "url": "https://developer.mozilla.org/en-US/",         "profile": "docs" },
+    { "url": "https://github.com/",                          "profile": "strict-csp-saas" },
+    { "url": "https://stripe.com/",                          "profile": "strict-csp-saas" },
+    { "url": "https://linear.app/",                          "profile": "spa-marketing" },
+    { "url": "https://vercel.com/",                          "profile": "cdn-fronted" },
+    { "url": "https://news.ycombinator.com/",                "profile": "legacy-server-rendered" },
+    { "url": "https://en.wikipedia.org/wiki/Accessibility",  "profile": "high-traffic-content" },
+    { "url": "https://www.w3.org/WAI/",                      "profile": "public-sector" },
+    { "url": "https://tailwindcss.com/",                     "profile": "docs" },
+    { "url": "https://svelte.dev/",                          "profile": "docs" },
+    { "url": "https://nextjs.org/",                          "profile": "rsc-app-router" },
+    { "url": "https://www.gov.uk/",                          "profile": "public-sector" },
+    { "url": "https://react.dev/",                           "profile": "docs" },
+    { "url": "https://supabase.com/",                        "profile": "spa-marketing" }
+  ]
+}

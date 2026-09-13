@@ -1,0 +1,2 @@
+{ "name": "s1-svelte-5", "private": true, "version": "0.0.0",
+  "dependencies": { "svelte": "5.19.0" } }

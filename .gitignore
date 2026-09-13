@@ -1,0 +1,7 @@
+node_modules/
+spikes/**/node_modules/
+spikes/**/dist/
+spikes/**/.next/
+spikes/s4-literal-text/repos/
+results/raw/
+*.log

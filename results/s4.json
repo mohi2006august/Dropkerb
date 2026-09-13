@@ -1,0 +1,299 @@
+{
+  "spike": "s4",
+  "title": "How much visible text is literal in the repo?",
+  "startedAt": "2026-09-13T11:28:15.413Z",
+  "finishedAt": "2026-09-13T11:30:03.637Z",
+  "question": "For a page rendered from a known repo, what share of its visible strings appear literally in the source, and what share appear exactly once so that they identify a location?",
+  "verdict": "partial",
+  "conclusion": "932 visible strings from 8/8 pages across 7 repos.\n\nPresent in source:   96%  (92% literal, 5% only after normalising typography)\nLocates a file:      31%  (exactly one occurrence)\nAmbiguous:           65%  (found, but in more than one place)\nAbsent:              4%\n\nBy length:  >= 25 chars 77% unique (n=232), < 25 chars 16% unique (n=700)\nUnique hits land in: markup 75, prose content 177, i18n/data catalogue 38\nSite chrome (nav/header/footer): 9% unique of 354\n\nBest page: react/docs at 46% unique. Worst: tailwind/docs at 8%.\n\nThreshold used: anchor search is usable as a fallback if it locates >= 50% of the strings it is handed. Measured 31%.",
+  "designImpact": "The text is usually present (96%) but usually not unique, so s5.3 returns candidate sets, not locations. The design must treat anchor search as a *ranking* input alongside another signal, not as a locator on its own.\nString length decides the outcome: 77% unique at >= 25 chars versus 16% below it. s5.3 should require a minimum anchor length and fall through rather than return a low-confidence match for short labels - which is exactly the button and link text most accessibility findings attach to.\nUnique hits land in prose content (177) more often than in markup (75). For docs-style sites the located file is a markdown document, not the component that renders it, so \"fix the source\" means editing content, not code - a product distinction s5.3 should surface rather than hide.\nSite chrome behaves differently from body content (9% unique across 354 chrome strings). Since nav and footer are where a large share of real accessibility findings sit, this subset - not the page average - is the number that matters for the fallback.",
+  "observations": [
+    {
+      "cell": "environment",
+      "probe": "git-available",
+      "ok": true,
+      "detail": "git version 2.51.2.windows.1"
+    },
+    {
+      "cell": "eslint",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "b12ccd4bef6a - 683 text files, 3.7 MB indexed of 26.1 MB checkout, 1 minified skipped",
+      "metrics": {
+        "files": 683,
+        "indexedMb": 3.7,
+        "checkoutMb": 26.1
+      }
+    },
+    {
+      "cell": "eslint/homepage",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "83% of 102 visible strings appear in the source (75 literal, 10 only after normalising typography)",
+      "metrics": {
+        "n": 102,
+        "literal": 75,
+        "normalized": 10,
+        "foundRate": 0.8333333333333334
+      }
+    },
+    {
+      "cell": "eslint/homepage",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "40% occur exactly once, so they locate a file; 60% of strings >= 25 chars do - unique hits land in markup 6, content 6, catalogue 29",
+      "metrics": {
+        "unique": 41,
+        "uniqueRate": 0.4019607843137255,
+        "longUniqueRate": 0.6,
+        "inMarkup": 6,
+        "inCatalogue": 29
+      }
+    },
+    {
+      "cell": "vue",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "b75d188ab16b - 402 text files, 1.3 MB indexed of 5.8 MB checkout, 1 minified skipped",
+      "metrics": {
+        "files": 402,
+        "indexedMb": 1.3,
+        "checkoutMb": 5.8
+      }
+    },
+    {
+      "cell": "vue/docs",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "98% of 120 visible strings appear in the source (116 literal, 1 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 116,
+        "normalized": 1,
+        "foundRate": 0.975
+      }
+    },
+    {
+      "cell": "vue/docs",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "38% occur exactly once, so they locate a file; 97% of strings >= 25 chars do - unique hits land in markup 7, content 39, catalogue 0",
+      "metrics": {
+        "unique": 46,
+        "uniqueRate": 0.38333333333333336,
+        "longUniqueRate": 0.9696969696969697,
+        "inMarkup": 7,
+        "inCatalogue": 0
+      }
+    },
+    {
+      "cell": "react",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "8efce7853d0f - 436 text files, 5.7 MB indexed of 30.8 MB checkout",
+      "metrics": {
+        "files": 436,
+        "indexedMb": 5.7,
+        "checkoutMb": 30.8
+      }
+    },
+    {
+      "cell": "react/docs",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "99% of 120 visible strings appear in the source (113 literal, 6 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 113,
+        "normalized": 6,
+        "foundRate": 0.9916666666666667
+      }
+    },
+    {
+      "cell": "react/docs",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "46% occur exactly once, so they locate a file; 91% of strings >= 25 chars do - unique hits land in markup 1, content 54, catalogue 0",
+      "metrics": {
+        "unique": 55,
+        "uniqueRate": 0.4583333333333333,
+        "longUniqueRate": 0.9069767441860465,
+        "inMarkup": 1,
+        "inCatalogue": 0
+      }
+    },
+    {
+      "cell": "svelte",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "043e3689bb64 - 1660 text files, 3.5 MB indexed of 33.5 MB checkout, 1 minified skipped",
+      "metrics": {
+        "files": 1660,
+        "indexedMb": 3.5,
+        "checkoutMb": 33.5
+      }
+    },
+    {
+      "cell": "svelte/docs",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "100% of 120 visible strings appear in the source (118 literal, 2 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 118,
+        "normalized": 2,
+        "foundRate": 1
+      }
+    },
+    {
+      "cell": "svelte/docs",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "9% occur exactly once, so they locate a file; 70% of strings >= 25 chars do - unique hits land in markup 2, content 9, catalogue 0",
+      "metrics": {
+        "unique": 11,
+        "uniqueRate": 0.09166666666666666,
+        "longUniqueRate": 0.7,
+        "inMarkup": 2,
+        "inCatalogue": 0
+      }
+    },
+    {
+      "cell": "tailwind",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "7f92c2213315 - 427 text files, 3.4 MB indexed of 197.2 MB checkout",
+      "metrics": {
+        "files": 427,
+        "indexedMb": 3.4,
+        "checkoutMb": 197.2
+      }
+    },
+    {
+      "cell": "tailwind/homepage",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "100% of 120 visible strings appear in the source (115 literal, 5 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 115,
+        "normalized": 5,
+        "foundRate": 1
+      }
+    },
+    {
+      "cell": "tailwind/homepage",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "37% occur exactly once, so they locate a file; 89% of strings >= 25 chars do - unique hits land in markup 44, content 0, catalogue 0",
+      "metrics": {
+        "unique": 44,
+        "uniqueRate": 0.36666666666666664,
+        "longUniqueRate": 0.8888888888888888,
+        "inMarkup": 44,
+        "inCatalogue": 0
+      }
+    },
+    {
+      "cell": "tailwind/docs",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "100% of 120 visible strings appear in the source (117 literal, 3 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 117,
+        "normalized": 3,
+        "foundRate": 1
+      }
+    },
+    {
+      "cell": "tailwind/docs",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "8% occur exactly once, so they locate a file; 20% of strings >= 25 chars do - unique hits land in markup 9, content 0, catalogue 0",
+      "metrics": {
+        "unique": 9,
+        "uniqueRate": 0.075,
+        "longUniqueRate": 0.2,
+        "inMarkup": 9,
+        "inCatalogue": 0
+      }
+    },
+    {
+      "cell": "nodejs",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "69249e0556ad - 1885 text files, 20.8 MB indexed of 30.9 MB checkout",
+      "metrics": {
+        "files": 1885,
+        "indexedMb": 20.8,
+        "checkoutMb": 30.9
+      }
+    },
+    {
+      "cell": "nodejs/content",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "100% of 110 visible strings appear in the source (95 literal, 15 only after normalising typography)",
+      "metrics": {
+        "n": 110,
+        "literal": 95,
+        "normalized": 15,
+        "foundRate": 1
+      }
+    },
+    {
+      "cell": "nodejs/content",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "35% occur exactly once, so they locate a file; 79% of strings >= 25 chars do - unique hits land in markup 0, content 30, catalogue 9",
+      "metrics": {
+        "unique": 39,
+        "uniqueRate": 0.35454545454545455,
+        "longUniqueRate": 0.7941176470588235,
+        "inMarkup": 0,
+        "inCatalogue": 9
+      }
+    },
+    {
+      "cell": "govuk",
+      "probe": "corpus",
+      "ok": true,
+      "detail": "177b20989270 - 587 text files, 1.2 MB indexed of 4 MB checkout",
+      "metrics": {
+        "files": 587,
+        "indexedMb": 1.2,
+        "checkoutMb": 4
+      }
+    },
+    {
+      "cell": "govuk/docs",
+      "probe": "text-in-source",
+      "ok": true,
+      "detail": "90% of 120 visible strings appear in the source (106 literal, 2 only after normalising typography)",
+      "metrics": {
+        "n": 120,
+        "literal": 106,
+        "normalized": 2,
+        "foundRate": 0.9
+      }
+    },
+    {
+      "cell": "govuk/docs",
+      "probe": "unique-anchor",
+      "ok": false,
+      "detail": "38% occur exactly once, so they locate a file; 70% of strings >= 25 chars do - unique hits land in markup 6, content 39, catalogue 0",
+      "metrics": {
+        "unique": 45,
+        "uniqueRate": 0.375,
+        "longUniqueRate": 0.7037037037037037,
+        "inMarkup": 6,
+        "inCatalogue": 0
+      }
+    }
+  ],
+  "env": {
+    "node": "v24.20.0",
+    "platform": "win32 x64"
+  }
+}

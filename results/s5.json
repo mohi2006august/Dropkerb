@@ -1,0 +1,961 @@
+{
+  "spike": "s5",
+  "title": "Can we instrument real sites at all?",
+  "startedAt": "2026-09-13T10:03:30.920Z",
+  "finishedAt": "2026-09-13T10:06:21.678Z",
+  "question": "Do strict CSP, bot detection, or rate limiting prevent injecting axe-core and evaluating JS, and is CDP-level injection sufficient where page-level injection fails?",
+  "verdict": "pass",
+  "conclusion": "Sample: 15 of 15 listed sites measured.\nNavigated 100% of 15 sites.\nCDP-level evaluate succeeded on 100%; DOM script-tag injection succeeded on 73%.\n4 of 15 sites ship a CSP that restricts inline script.\nFull axe-core inject-and-run: 100%. CDP AX tree available on 100%.\nBot challenge encountered on 0% of sites.\n\nCDP injection bypasses page CSP where DOM injection is blocked, which is the result the design was counting on: strict CSP is not a blocker, provided we always inject via CDP and never via addScriptTag.",
+  "designImpact": "No design change. Remote auditing stays a supported path; keep all injection on the CDP path and treat addScriptTag as unusable.",
+  "observations": [
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 1426
+      }
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "no CSP header",
+      "metrics": {
+        "hasCsp": 0,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "2 violation rules",
+      "metrics": {
+        "violations": 2,
+        "axeMs": 100
+      }
+    },
+    {
+      "cell": "example.com (control-no-csp)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "14 nodes",
+      "metrics": {
+        "axNodes": 14
+      }
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 408
+      }
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "restricts inline script",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 1
+      }
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "dom-script-tag",
+      "ok": false,
+      "detail": "blocked: page.addScriptTag: Executing inline script violates the following Content Security Policy directive 'script-src-elem 'report-sample' 'self' 'wasm-unsafe-eval' a"
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "3 violation rules",
+      "metrics": {
+        "violations": 3,
+        "axeMs": 285
+      }
+    },
+    {
+      "cell": "developer.mozilla.org (docs)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "667 nodes",
+      "metrics": {
+        "axNodes": 667
+      }
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 1263
+      }
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "restricts inline script",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 1
+      }
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "dom-script-tag",
+      "ok": false,
+      "detail": "blocked: page.addScriptTag: Executing inline script violates the following Content Security Policy directive 'script-src github.githubassets.com 'sha256-tSjmyPUky1KbRZ0f"
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "1 violation rules",
+      "metrics": {
+        "violations": 1,
+        "axeMs": 541
+      }
+    },
+    {
+      "cell": "github.com (strict-csp-saas)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "1506 nodes",
+      "metrics": {
+        "axNodes": 1506
+      }
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 2839
+      }
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "restricts inline script",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 1
+      }
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "dom-script-tag",
+      "ok": false,
+      "detail": "blocked: page.addScriptTag: Executing inline script violates the following Content Security Policy directive 'script-src https://b.stripecdn.com https://js.stripe.com 's"
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "2 violation rules",
+      "metrics": {
+        "violations": 2,
+        "axeMs": 774
+      }
+    },
+    {
+      "cell": "stripe.com (strict-csp-saas)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "1991 nodes",
+      "metrics": {
+        "axNodes": 1991
+      }
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 3258
+      }
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "5 violation rules",
+      "metrics": {
+        "violations": 5,
+        "axeMs": 664
+      }
+    },
+    {
+      "cell": "linear.app (spa-marketing)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "3054 nodes",
+      "metrics": {
+        "axNodes": 3054
+      }
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 1033
+      }
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "1 violation rules",
+      "metrics": {
+        "violations": 1,
+        "axeMs": 792
+      }
+    },
+    {
+      "cell": "vercel.com (cdn-fronted)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "210 nodes",
+      "metrics": {
+        "axNodes": 210
+      }
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 1324
+      }
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "7 violation rules",
+      "metrics": {
+        "violations": 7,
+        "axeMs": 411
+      }
+    },
+    {
+      "cell": "news.ycombinator.com (legacy-server-rendered)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "1624 nodes",
+      "metrics": {
+        "axNodes": 1624
+      }
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 736
+      }
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "6 violation rules",
+      "metrics": {
+        "violations": 6,
+        "axeMs": 1661
+      }
+    },
+    {
+      "cell": "en.wikipedia.org (high-traffic-content)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "7332 nodes",
+      "metrics": {
+        "axNodes": 7332
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 784
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "0 violation rules",
+      "metrics": {
+        "violations": 0,
+        "axeMs": 699
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "683 nodes",
+      "metrics": {
+        "axNodes": 683
+      }
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 2475
+      }
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "no CSP header",
+      "metrics": {
+        "hasCsp": 0,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "8 violation rules",
+      "metrics": {
+        "violations": 8,
+        "axeMs": 374
+      }
+    },
+    {
+      "cell": "tailwindcss.com (docs)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "2810 nodes",
+      "metrics": {
+        "axNodes": 2810
+      }
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 992
+      }
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "no CSP header",
+      "metrics": {
+        "hasCsp": 0,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "1 violation rules",
+      "metrics": {
+        "violations": 1,
+        "axeMs": 179
+      }
+    },
+    {
+      "cell": "svelte.dev (docs)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "551 nodes",
+      "metrics": {
+        "axNodes": 551
+      }
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 867
+      }
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "present but permissive",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "4 violation rules",
+      "metrics": {
+        "violations": 4,
+        "axeMs": 396
+      }
+    },
+    {
+      "cell": "nextjs.org (rsc-app-router)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "846 nodes",
+      "metrics": {
+        "axNodes": 846
+      }
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 592
+      }
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "restricts inline script",
+      "metrics": {
+        "hasCsp": 1,
+        "restrictsInline": 1
+      }
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "dom-script-tag",
+      "ok": false,
+      "detail": "blocked: page.addScriptTag: Executing inline script violates the following Content Security Policy directive 'script-src 'self' www.google-analytics.com ssl.google-analy"
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "1 violation rules",
+      "metrics": {
+        "violations": 1,
+        "axeMs": 333
+      }
+    },
+    {
+      "cell": "www.gov.uk (public-sector)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "787 nodes",
+      "metrics": {
+        "axNodes": 787
+      }
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 764
+      }
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "no CSP header",
+      "metrics": {
+        "hasCsp": 0,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "2 violation rules",
+      "metrics": {
+        "violations": 2,
+        "axeMs": 653
+      }
+    },
+    {
+      "cell": "react.dev (docs)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "1897 nodes",
+      "metrics": {
+        "axNodes": 1897
+      }
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "navigate",
+      "ok": true,
+      "detail": "HTTP 200",
+      "metrics": {
+        "status": 200,
+        "navMs": 1165
+      }
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "csp-present",
+      "ok": true,
+      "detail": "no CSP header",
+      "metrics": {
+        "hasCsp": 0,
+        "restrictsInline": 0
+      }
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "bot-challenge",
+      "ok": true,
+      "detail": "no challenge detected"
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "cdp-init-script",
+      "ok": true,
+      "detail": "init script executed"
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "dom-script-tag",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "cdp-evaluate",
+      "ok": true,
+      "detail": "executed"
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "axe-run",
+      "ok": true,
+      "detail": "4 violation rules",
+      "metrics": {
+        "violations": 4,
+        "axeMs": 962
+      }
+    },
+    {
+      "cell": "supabase.com (spa-marketing)",
+      "probe": "ax-tree",
+      "ok": true,
+      "detail": "1440 nodes",
+      "metrics": {
+        "axNodes": 1440
+      }
+    }
+  ],
+  "env": {
+    "node": "v24.20.0",
+    "platform": "win32 x64"
+  }
+}

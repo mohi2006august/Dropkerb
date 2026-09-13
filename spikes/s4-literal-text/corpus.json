@@ -1,0 +1,63 @@
+{
+  "comment": "Pairs of {open-source repo, page built from it} for measuring how much visible text is literal in the source (TDD s0.5, gating anchor search s5.3). Chosen to span the ways projects store user-visible text, because that - not framework - is what decides whether anchor search can locate a node: markdown content, component JSX/templates, and i18n catalogues. nodejs.org is the deliberate i18n case: its text lives in locale JSON, so a hit there proves the string exists but not where it is rendered. Sizes are measured at clone time and recorded in results rather than asserted here.",
+  "entries": [
+    {
+      "id": "eslint",
+      "repo": "https://github.com/eslint/eslint.org.git",
+      "textStrategy": "eleventy: markdown docs + nunjucks templates",
+      "pages": [
+        { "url": "https://eslint.org/", "kind": "homepage" }
+      ],
+      "note": "Homepage only. eslint.org renders its docs from the eslint/eslint repo at build time, so /docs/** text is absent from this checkout by design - measured and confirmed, not assumed."
+    },
+    {
+      "id": "vue",
+      "repo": "https://github.com/vuejs/docs.git",
+      "textStrategy": "vitepress: markdown content",
+      "pages": [
+        { "url": "https://vuejs.org/guide/introduction.html", "kind": "docs" }
+      ]
+    },
+    {
+      "id": "react",
+      "repo": "https://github.com/reactjs/react.dev.git",
+      "textStrategy": "next.js: markdown content + MDX components",
+      "pages": [
+        { "url": "https://react.dev/learn", "kind": "docs" }
+      ]
+    },
+    {
+      "id": "svelte",
+      "repo": "https://github.com/sveltejs/svelte.dev.git",
+      "textStrategy": "sveltekit: markdown docs + .svelte components",
+      "pages": [
+        { "url": "https://svelte.dev/docs/svelte/overview", "kind": "docs" }
+      ]
+    },
+    {
+      "id": "tailwind",
+      "repo": "https://github.com/tailwindlabs/tailwindcss.com.git",
+      "textStrategy": "next.js: MDX docs + JSX marketing copy",
+      "pages": [
+        { "url": "https://tailwindcss.com/", "kind": "homepage" },
+        { "url": "https://tailwindcss.com/docs/installation/using-vite", "kind": "docs" }
+      ]
+    },
+    {
+      "id": "nodejs",
+      "repo": "https://github.com/nodejs/nodejs.org.git",
+      "textStrategy": "next.js: i18n JSON catalogues + markdown",
+      "pages": [
+        { "url": "https://nodejs.org/en/about", "kind": "content" }
+      ]
+    },
+    {
+      "id": "govuk",
+      "repo": "https://github.com/alphagov/govuk-design-system.git",
+      "textStrategy": "eleventy: nunjucks templates + markdown",
+      "pages": [
+        { "url": "https://design-system.service.gov.uk/components/button/", "kind": "docs" }
+      ]
+    }
+  ]
+}

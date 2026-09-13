@@ -1,0 +1,125 @@
+{
+  "spike": "s2",
+  "title": "Can React Server Components be attributed at all?",
+  "startedAt": "2026-09-13T12:32:17.869Z",
+  "finishedAt": "2026-09-13T12:32:24.911Z",
+  "question": "With no client fiber for server-rendered markup, does any signal - client residue, the flight payload, CSS source maps, or differential probing - recover the source location of a server-rendered DOM node?",
+  "verdict": "pass",
+  "conclusion": "Server components: attributable via (c) CSS module class, (d) differential probing through.\n(a) client residue on server nodes: no\n(b) server component identity in the flight payload: no\n(c) CSS module class names decode to file + local name: WORKS\n(d) differential probing through the server build: WORKS\n\nThe client component in the same tree is the control. Where it attributes and the server components do not, the gap is RSC-specific rather than a defect in the resolver.",
+  "designImpact": "Probing (TDD s5.5) works through the App Router dev build, so it carries RSC attribution. That confirms the hard dev-server requirement for App Router projects: it belongs on the README, not in a footnote.\nNext's dev CSS Module format encodes file and local class name directly, so s5.2 needs no source map in dev - but production uses a bare hash and does, so the map index is still required.\nThe flight payload carries module references only for client components, which must be hydrated. Server components are already HTML by the time they arrive, so there is nothing to reference - this is structural, not a Next.js version detail.\nEither way, s5.1 is unavailable for server-rendered markup and must not be listed as the primary path for App Router.",
+  "observations": [
+    {
+      "cell": "next-dev",
+      "probe": "server-start",
+      "ok": true,
+      "detail": "dev server on :52764"
+    },
+    {
+      "cell": "next-dev",
+      "probe": "fixture-renders",
+      "ok": true,
+      "detail": "21 tagged nodes (13 server + 5 client expected)",
+      "metrics": {
+        "rendered": 21
+      }
+    },
+    {
+      "cell": "server-components",
+      "probe": "client-residue",
+      "ok": false,
+      "detail": "13/13 have a React fiber, 0/13 carry source info - fiber present, fields: _debugOwner:set _debugInfo:set _debugHookTypes:null",
+      "metrics": {
+        "fiberFound": 13,
+        "attributed": 0,
+        "n": 13
+      }
+    },
+    {
+      "cell": "client-components",
+      "probe": "client-residue",
+      "ok": false,
+      "detail": "5/5 have a React fiber, 0/5 carry source info - fiber present, fields: _debugOwner:set _debugInfo:null _debugHookTypes:null",
+      "metrics": {
+        "fiberFound": 5,
+        "attributed": 0,
+        "n": 5
+      }
+    },
+    {
+      "cell": "flight-payload",
+      "probe": "payload-present",
+      "ok": true,
+      "detail": "5 chunks, 26218 chars",
+      "metrics": {
+        "chunks": 5,
+        "chars": 26218
+      }
+    },
+    {
+      "cell": "flight-payload",
+      "probe": "server-component-identity",
+      "ok": false,
+      "detail": "no server source named; payload mentions 9 paths (components/layout-router.js, components/render-from-template-context.js, app/Client.jsx, app/page.js)",
+      "metrics": {
+        "paths": 9
+      }
+    },
+    {
+      "cell": "flight-payload",
+      "probe": "client-component-identity",
+      "ok": true,
+      "detail": "client component module reference present (expected - it must be hydrated)",
+      "metrics": {
+        "clientRefs": 47
+      }
+    },
+    {
+      "cell": "css-modules",
+      "probe": "hashed-classes-present",
+      "ok": true,
+      "detail": "5 tagged nodes carry a class: page_serverCard__aV6KY",
+      "metrics": {
+        "classed": 5
+      }
+    },
+    {
+      "cell": "css-modules",
+      "probe": "class-name-decodes",
+      "ok": true,
+      "detail": "5/5 decode to file+local name: page_serverCard__aV6KY -> page.module.css .serverCard",
+      "metrics": {
+        "decoded": 5,
+        "n": 5
+      }
+    },
+    {
+      "cell": "css-modules",
+      "probe": "css-source-map",
+      "ok": false,
+      "detail": "0/1 stylesheets advertise a source map",
+      "metrics": {
+        "mapped": 0,
+        "sheets": 1
+      }
+    },
+    {
+      "cell": "probing",
+      "probe": "marker-injected",
+      "ok": true,
+      "detail": "marked app/page.jsx:19 (r05)"
+    },
+    {
+      "cell": "probing",
+      "probe": "marker-lands-on-target",
+      "ok": true,
+      "detail": "marker landed on r05, expected r05",
+      "metrics": {
+        "seconds": 2
+      }
+    }
+  ],
+  "env": {
+    "node": "v24.20.0",
+    "platform": "win32 x64"
+  }
+}

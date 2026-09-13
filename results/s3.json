@@ -1,0 +1,200 @@
+{
+  "spike": "s3",
+  "title": "What does a run actually cost?",
+  "startedAt": "2026-09-13T12:51:54.720Z",
+  "finishedAt": "2026-09-13T12:54:34.536Z",
+  "question": "For a real site, how large is the per-page sensor payload the model must read, how many pages are distinct templates, and what does one run therefore cost at current per-token rates?",
+  "verdict": "partial",
+  "conclusion": "ESTIMATED RUN: no count_tokens credentials, so token and dollar figures below are derived from measured bytes at a fixed chars-per-token ratio. Byte, page and template counts ARE measured. Set ANTHROPIC_API_KEY and re-run to replace the estimates.\n\nSampled 24 pages across 3 sites. Rate card 2026-06-24 (claude-api skill rate card).\n\nPer page (ESTIMATED):\n  full AX tree              40841 tokens avg, 99003 at p95\n  violations-with-context   2579 tokens avg  -> 6% the size\n  cacheable system prefix   188 tokens\n\nTemplates (share of pages that are structurally distinct, so need judging):\n  Jaccard 0.8   11/24 distinct   46% of pages\n  Jaccard 0.9   20/24 distinct   83% of pages\n  Jaccard 0.95   23/24 distinct   96% of pages\n\nCost of one 500-page site on Opus 5 (ESTIMATED):\n  naive: full tree, every page         $102.57\n  minimal payload, every page          $6.92\n  + template clustering (417 pages)  $5.77\n  + prompt caching                     $5.42\n  same, on Haiku 4.5                    $1.08\n\nThreshold used: a run is affordable if it lands under $5 for a 500-page site. Not asserted - figures are estimates.",
+  "designImpact": "Tokens were estimated, not measured, so the dollar figures are indicative only. The RATIOS below do not depend on the tokenizer - they are measured from payload bytes and page counts - so the structural conclusions hold either way.\nSending violations-with-context instead of the full accessibility tree removes 94% of the per-page payload. TDD s10 must cost a run against the minimal payload, and the Judge prompt has to be built outward from each violation rather than handed the tree - that is a structural requirement on s5, not a tuning knob.\nCaveat on that figure: the minimal payload is violations plus context, so it scales with violation count, and this sample averaged only 2.8 violations per page. On a page with dozens of violations the saving shrinks toward zero. The per-page cost to plan against is the p95 (99003 tokens full tree), not the mean of a clean sample.\nThe clustering saving is highly sensitive to the similarity threshold: 46% of pages are distinct at Jaccard 0.8 but 96% at 0.95 - a 50% swing from a parameter chosen by hand. That sensitivity IS the finding: TDD s10 cannot quote a clustering saving until the similarity metric is validated against pages known to share a template. Quoting the favourable end of this curve would be picking a number, not measuring one.\nClustering removed less than half the pages (83% distinct). The cost model cannot lean on it as the primary saving, and per-page cost stays the number that matters.\nPrompt caching the 188-token prefix saves almost nothing (6%) because the prefix is tiny next to the per-page payload. The design should not count on caching as a cost lever at this prompt shape.\nModel choice is a 5x lever: the same run is $5.42 on Opus 5 against $1.08 on Haiku 4.5. Since the Judge's task is bounded and rule-driven, a cheaper model per violation with escalation for ambiguous cases is worth measuring before the cost model fixes on one tier.",
+  "observations": [
+    {
+      "cell": "environment",
+      "probe": "token-source",
+      "ok": true,
+      "detail": "NO CREDENTIALS: tokens and dollars are ESTIMATED from payload bytes. Set ANTHROPIC_API_KEY and re-run to measure them.",
+      "metrics": {
+        "measured": 0
+      }
+    },
+    {
+      "cell": "environment",
+      "probe": "cacheable-prefix",
+      "ok": true,
+      "detail": "system prefix is 188 tokens (655 bytes) - this is the part a run can cache across pages",
+      "metrics": {
+        "prefixTokens": 188,
+        "prefixBytes": 655
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "discover",
+      "ok": true,
+      "detail": "8 pages queued (cap 8), 7 siblings of the entry path",
+      "metrics": {
+        "pages": 8,
+        "siblings": 7
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "payload-size",
+      "ok": true,
+      "detail": "8 pages: full AX tree averages 18259 tokens, violations-with-context 244 tokens (1% of full), 1 violations/page",
+      "metrics": {
+        "fullTokens": 18259,
+        "minimalTokens": 244,
+        "minimalShare": 0.013356518405432975,
+        "axNodes": 616
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "clustering@0.8",
+      "ok": true,
+      "detail": "6 templates across 8 pages - 75% of pages need judging",
+      "metrics": {
+        "clusters": 6,
+        "pages": 8,
+        "ratio": 0.75
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "clustering@0.9",
+      "ok": false,
+      "detail": "8 templates across 8 pages - 100% of pages need judging",
+      "metrics": {
+        "clusters": 8,
+        "pages": 8,
+        "ratio": 1
+      }
+    },
+    {
+      "cell": "www.w3.org (public-sector)",
+      "probe": "clustering@0.95",
+      "ok": false,
+      "detail": "8 templates across 8 pages - 100% of pages need judging",
+      "metrics": {
+        "clusters": 8,
+        "pages": 8,
+        "ratio": 1
+      }
+    },
+    {
+      "cell": "eslint.org (docs-uniform-template)",
+      "probe": "discover",
+      "ok": true,
+      "detail": "8 pages queued (cap 8), 7 siblings of the entry path",
+      "metrics": {
+        "pages": 8,
+        "siblings": 7
+      }
+    },
+    {
+      "cell": "eslint.org (docs-uniform-template)",
+      "probe": "payload-size",
+      "ok": true,
+      "detail": "8 pages: full AX tree averages 63982 tokens, violations-with-context 5257 tokens (8% of full), 4 violations/page",
+      "metrics": {
+        "fullTokens": 63982,
+        "minimalTokens": 5257,
+        "minimalShare": 0.0821622614305279,
+        "axNodes": 2329
+      }
+    },
+    {
+      "cell": "eslint.org (docs-uniform-template)",
+      "probe": "clustering@0.8",
+      "ok": true,
+      "detail": "3 templates across 8 pages - 38% of pages need judging",
+      "metrics": {
+        "clusters": 3,
+        "pages": 8,
+        "ratio": 0.375
+      }
+    },
+    {
+      "cell": "eslint.org (docs-uniform-template)",
+      "probe": "clustering@0.9",
+      "ok": true,
+      "detail": "5 templates across 8 pages - 63% of pages need judging",
+      "metrics": {
+        "clusters": 5,
+        "pages": 8,
+        "ratio": 0.625
+      }
+    },
+    {
+      "cell": "eslint.org (docs-uniform-template)",
+      "probe": "clustering@0.95",
+      "ok": true,
+      "detail": "7 templates across 8 pages - 88% of pages need judging",
+      "metrics": {
+        "clusters": 7,
+        "pages": 8,
+        "ratio": 0.875
+      }
+    },
+    {
+      "cell": "svelte.dev (docs-spa)",
+      "probe": "discover",
+      "ok": true,
+      "detail": "8 pages queued (cap 8), 8 siblings of the entry path",
+      "metrics": {
+        "pages": 8,
+        "siblings": 8
+      }
+    },
+    {
+      "cell": "svelte.dev (docs-spa)",
+      "probe": "payload-size",
+      "ok": true,
+      "detail": "8 pages: full AX tree averages 40281 tokens, violations-with-context 2236 tokens (6% of full), 4 violations/page",
+      "metrics": {
+        "fullTokens": 40281,
+        "minimalTokens": 2236,
+        "minimalShare": 0.05550331884152415,
+        "axNodes": 1590
+      }
+    },
+    {
+      "cell": "svelte.dev (docs-spa)",
+      "probe": "clustering@0.8",
+      "ok": true,
+      "detail": "2 templates across 8 pages - 25% of pages need judging",
+      "metrics": {
+        "clusters": 2,
+        "pages": 8,
+        "ratio": 0.25
+      }
+    },
+    {
+      "cell": "svelte.dev (docs-spa)",
+      "probe": "clustering@0.9",
+      "ok": true,
+      "detail": "7 templates across 8 pages - 88% of pages need judging",
+      "metrics": {
+        "clusters": 7,
+        "pages": 8,
+        "ratio": 0.875
+      }
+    },
+    {
+      "cell": "svelte.dev (docs-spa)",
+      "probe": "clustering@0.95",
+      "ok": false,
+      "detail": "8 templates across 8 pages - 100% of pages need judging",
+      "metrics": {
+        "clusters": 8,
+        "pages": 8,
+        "ratio": 1
+      }
+    }
+  ],
+  "env": {
+    "node": "v24.20.0",
+    "platform": "win32 x64"
+  }
+}

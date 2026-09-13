@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  },
+  "include": ["spikes/**/*.ts"],
+  "exclude": [
+    "spikes/**/fixtures/**",
+    "spikes/s2-rsc-attribution/fixture-next/**",
+    // S4 clones real projects into here. They are other people's source, not ours, and
+    // typechecking them exhausts tsc's heap outright.
+    "spikes/s4-literal-text/repos/**",
+    "spikes/**/node_modules/**"
+  ]
+}

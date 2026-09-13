@@ -1,0 +1,32 @@
+{
+  "name": "a11y-agent-spikes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Week-one de-risking spikes S1-S5 for the a11y-agent technical design (TDD s0.5). Each spike is a timeboxed experiment that answers one question the design rests on.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "setup:s4": "node spikes/s4-literal-text/install.ts",
+    "doctor": "node scripts/doctor.mjs",
+    "spike:s1": "node spikes/s1-debug-internals/run.ts",
+    "spike:s2": "node spikes/s2-rsc-attribution/run.ts",
+    "spike:s3": "node spikes/s3-cost/run.ts",
+    "spike:s4": "node spikes/s4-literal-text/run.ts",
+    "spike:s5": "node spikes/s5-instrumentation/run.ts",
+    "spike:all": "node scripts/run-all.mjs",
+    "report": "node scripts/report.mjs",
+    "typecheck": "tsc --noEmit",
+    "clean": "node scripts/clean.mjs"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "@types/node": "^22.10.0",
+    "axe-core": "^4.13.0",
+    "esbuild": "^0.28.0",
+    "playwright": "^1.63.0",
+    "typescript": "^5.7.0"
+  }
+}

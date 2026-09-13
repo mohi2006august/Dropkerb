@@ -1,0 +1,7 @@
+{
+  "name": "s1-react-19",
+  "private": true,
+  "version": "0.0.0",
+  "description": "S1 fixture: React 19 in its own node_modules so react-dom resolves its own matching react.",
+  "dependencies": { "react": "19.2.0", "react-dom": "19.2.0" }
+}

@@ -1,0 +1,12 @@
+{
+  "comment": "Anthropic first-party API rates, USD per million tokens. Recorded here rather than inlined in code so a re-run with new prices changes the numbers without touching the logic, and so the report can state which rate card it used. Cache multipliers are the documented ratios: a cache write costs ~1.25x the input rate, a cache read ~0.1x.",
+  "source": "claude-api skill rate card",
+  "asOf": "2026-06-24",
+  "cacheWriteMultiplier": 1.25,
+  "cacheReadMultiplier": 0.1,
+  "models": [
+    { "id": "claude-opus-5",   "label": "Opus 5",   "inputPerMTok": 5.0, "outputPerMTok": 25.0, "contextTokens": 1000000 },
+    { "id": "claude-sonnet-5", "label": "Sonnet 5", "inputPerMTok": 2.0, "outputPerMTok": 10.0, "contextTokens": 1000000 },
+    { "id": "claude-haiku-4-5","label": "Haiku 4.5","inputPerMTok": 1.0, "outputPerMTok": 5.0,  "contextTokens": 200000 }
+  ]
+}

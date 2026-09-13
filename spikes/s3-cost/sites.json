@@ -1,0 +1,9 @@
+{
+  "comment": "Sites crawled a few pages deep to measure per-page sensor cost and how much template clustering saves. Chosen for uniform templates (docs), a mixed template (public sector), and a legacy server-rendered site - clustering should behave very differently across those, and if it does not, that is the finding. Page caps are small deliberately: this spike touches third-party sites and is not a crawler.",
+  "maxPagesPerSite": 8,
+  "sites": [
+    { "url": "https://www.w3.org/WAI/",            "profile": "public-sector" },
+    { "url": "https://eslint.org/docs/latest/use/", "profile": "docs-uniform-template" },
+    { "url": "https://svelte.dev/docs/svelte/overview", "profile": "docs-spa" }
+  ]
+}
